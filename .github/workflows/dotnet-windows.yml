@@ -11,11 +11,11 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-  
 
 env:
-    LIB_CSPROJ: Path_To_Plugin
-    SAMPLE_CSPROJ: Path_To_Sample
+    LIB_CSPROJ: src/PJAnimation/PJAnimation.csproj
+    SAMPLE_CSPROJ: samples/PJAnimation.Sample/PJAnimation.Sample.csproj
+    TESTS_CSPROJ: tests/PJAnimation.Tests/PJAnimation.Tests.csproj
     NugetPackageVersion: '99.0.0-preview${{ github.run_number }}'
     CurrentSemanticVersionBase: '99.0.0'
 
@@ -26,42 +26,41 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.402
-    
-    - name: Get Nuget version and Name for PR
+
+    - name: Get Nuget version for PR
       if: ${{ github.event_name == 'pull_request' }}
-      run: |
-        echo "NugetPackageVersion=${{ env.CurrentSemanticVersionBase }}-build-${{ github.event.pull_request.number }}.${{ github.run_number }}+${{ github.sha }}"
+      run: echo "NugetPackageVersion=${{ env.CurrentSemanticVersionBase }}-build-${{ github.event.pull_request.number }}.${{ github.run_number }}" >> "$GITHUB_ENV"
       shell: bash
-    
+
     - name: Workload install
       run: dotnet workload install maui --version 10.0.402.1
-    
+
     - name: Restore library dependencies
       run: dotnet restore ${{env.LIB_CSPROJ}}
-    
+
+    - name: Restore test dependencies
+      run: dotnet restore ${{env.TESTS_CSPROJ}}
+
     - name: Restore sample dependencies
       run: dotnet restore ${{env.SAMPLE_CSPROJ}}
-    
+
     - name: Build library
-      run: dotnet build ${{env.LIB_CSPROJ}} -c Release -p:PackageVersion=${{ env.NugetPackageVersion }} -p:Version=${{ env.NugetPackageVersion }} --no-restore
-    
+      run: dotnet build ${{env.LIB_CSPROJ}} -c Release -p:Version=${{ env.NugetPackageVersion }} --no-restore
+
+    - name: Run unit tests
+      run: dotnet test ${{env.TESTS_CSPROJ}} -c Release --no-restore
+
+    # iOS and Mac Catalyst apps need a Mac; they are built by the macOS workflow.
     - name: Build Sample app
-      run: dotnet build ${{env.SAMPLE_CSPROJ}} -c Release --no-restore
+      run: dotnet build ${{env.SAMPLE_CSPROJ}} -c Release -f net10.0-android --no-restore
 
     - name: Create Nuget
-      run: dotnet pack ${{env.LIB_CSPROJ}} -c Release --no-restore --no-build --include-symbols --include-source
-    
-    - name: Copy NuGet Packages to Staging Directory
-      if: ${{ runner.os == 'Windows' && !startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        mkdir -p ${{ github.workspace }}/nuget
-        Get-ChildItem -Path ${{env.Package_Creation_Path}} -Recurse | Where-Object { $_.Extension -match "nupkg" } | Copy-Item -Destination "${{ github.workspace }}/nuget"
-      shell: pwsh
+      run: dotnet pack ${{env.LIB_CSPROJ}} -c Release -p:Version=${{ env.NugetPackageVersion }} --no-restore --no-build -o "${{ github.workspace }}/nuget"
 
     - name: List NuGet packages found
       run: |

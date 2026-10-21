@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 env:
-    LIB_CSPROJ: Path_To_Plugin
-    SAMPLE_CSPROJ: Path_To_Sample
+    LIB_CSPROJ: src/PJAnimation/PJAnimation.csproj
+    SAMPLE_CSPROJ: samples/PJAnimation.Sample/PJAnimation.Sample.csproj
 
 jobs:
   build:
@@ -19,28 +19,29 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-   
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.402
-   
+
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '27.1'
-    
+
     - name: Workload install
       run: dotnet workload install maui --version 10.0.402.1
 
     - name: Restore library dependencies
       run: dotnet restore ${{env.LIB_CSPROJ}}
-    
-    - name: Restore sample dependencies
-      run: dotnet restore ${{env.SAMPLE_CSPROJ}}
-    
-    - name: Build library
+
+    - name: Build library (iOS)
       run: dotnet build ${{env.LIB_CSPROJ}} -c Release -f net10.0-ios --no-restore
-    
+
+    - name: Build library (Mac Catalyst)
+      run: dotnet build ${{env.LIB_CSPROJ}} -c Release -f net10.0-maccatalyst --no-restore
+
+    # Target the simulator so the build does not need the device signing identity from the csproj.
     - name: Build Sample app
-      run: dotnet build ${{env.SAMPLE_CSPROJ}} -c Release -f net10.0-ios --no-restore
+      run: dotnet build ${{env.SAMPLE_CSPROJ}} -c Release -f net10.0-ios -r iossimulator-arm64

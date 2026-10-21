@@ -7,10 +7,11 @@ on:
   push:
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
+    - "v[0-9]+.[0-9]+.[0-9]+-*"
 
 env:
-    LIB_CSPROJ: Path_To_Lib
-    PACKAGE_NAME: Package_Name
+    LIB_CSPROJ: src/PJAnimation/PJAnimation.csproj
+    PACKAGE_NAME: PJAnimation
 
 jobs:
   release-nuget:
@@ -41,7 +42,7 @@ jobs:
       uses: battila7/get-version-action@v2
 
     - name: Pack
-      run: dotnet pack "${{env.LIB_CSPROJ}}" -c Release -p:PackageVersion=${{steps.get_version.outputs.version-without-v}} -p:SymbolPackageFormat=snupkg -o . --include-symbols --include-source
+      run: dotnet pack "${{env.LIB_CSPROJ}}" -c Release -p:Version=${{steps.get_version.outputs.version-without-v}} -o .
 
     - name: NuGet login
       uses: NuGet/login@v1
