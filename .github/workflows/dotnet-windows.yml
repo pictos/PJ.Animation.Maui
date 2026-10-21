@@ -40,6 +40,11 @@ jobs:
     - name: Workload install
       run: dotnet workload install maui --version 10.0.402.1
 
+    # nuget.config lists the gitignored local feed `artifacts`; restore fails if it is missing.
+    - name: Create local NuGet feed folder
+      run: mkdir -p artifacts
+      shell: bash
+
     - name: Restore library dependencies
       run: dotnet restore ${{env.LIB_CSPROJ}}
 
