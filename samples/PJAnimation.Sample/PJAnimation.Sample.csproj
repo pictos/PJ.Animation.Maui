@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+		Sample app: Comet AnimationSample port + stress page with a tick-cost/FPS HUD.
+	-->
+	<PropertyGroup>
+		<TargetFrameworks>net10.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>PJAnimation.Sample</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPackable>false</IsPackable>
+		<MauiVersion>$(MauiPackageVersion)</MauiVersion>
+    
+    <ValidateXcodeVersion>false</ValidateXcodeVersion>
+
+		<ApplicationTitle>PJAnimation Sample</ApplicationTitle>
+		<ApplicationId>com.pjanimation.sample</ApplicationId>
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<!--
+		iOS device signing. Simulator and Mac Catalyst builds are unsigned and ignore this.
+		The profile is the Xcode-managed development profile for com.pjanimation.sample.
+		Override on the command line, e.g.:
+		  dotnet build -f net10.0-ios -r ios-arm64 -p:CodesignKey="..." -p:CodesignProvision="..."
+	-->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and $(RuntimeIdentifier.StartsWith('ios-'))">
+		<CodesignKey Condition="'$(CodesignKey)' == ''">Apple Development: pedro.pj.souza@hotmail.com (82GTWA3UC2)</CodesignKey>
+		<CodesignProvision Condition="'$(CodesignProvision)' == ''">iOS Team Provisioning Profile: com.pjanimation.sample</CodesignProvision>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" />
+	</ItemGroup>
+
+	<!--
+		By default the sample builds against the library project (fast inner loop).
+		Build with -p:UsePJAnimationPackage=true to consume the packed NuGet instead,
+		which validates the real consumer experience. Pack first:
+		  dotnet pack src/PJAnimation -c Release -o artifacts
+	-->
+	<ItemGroup Condition="'$(UsePJAnimationPackage)' != 'true'">
+		<ProjectReference Include="../../src/PJAnimation/PJAnimation.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(UsePJAnimationPackage)' == 'true'">
+		<PackageReference Include="PJAnimation" />
+	</ItemGroup>
+
+</Project>

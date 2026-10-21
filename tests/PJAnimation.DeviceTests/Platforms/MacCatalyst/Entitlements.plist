@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <!-- Test harness only: no App Sandbox so results can be written to the path in PJANIMATION_RESULTS. -->
+    <dict>
+        <key>com.apple.security.app-sandbox</key>
+        <false/>
+    </dict>
+</plist>
