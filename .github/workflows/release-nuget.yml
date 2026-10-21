@@ -30,12 +30,17 @@ jobs:
       run: git merge-base --is-ancestor HEAD origin/main
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.0.402
+        dotnet-version: latest
+        dotnet-channel: '10.0'
+        dotnet-quality: ga
 
     - name: Workload install
-      run: dotnet workload install maui --version 10.0.402.1
+      run: |
+        dotnet workload install maui
+        dotnet workload install maui-windows
+        dotnet workload update
 
     - name: Get version information tag
       id: get_version
@@ -53,7 +58,7 @@ jobs:
       uses: NuGet/login@v1
       id: login
       with:
-        user: ${{ secrets.NUGET_USER }}
+        user: PedroJesus
 
     - name: Publish
       env:
