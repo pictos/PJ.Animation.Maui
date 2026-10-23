@@ -333,9 +333,6 @@ state once, and an auto-reversing one ends at its start values.
 // Ignore it (for animations that carry essential information):
 AnimationManager.RespectReducedMotion = false;
 
-// Drive it from an in-app setting instead:
-AnimationManager.ReducedMotionProvider = new MyAppMotionSetting();   // implements IReducedMotionProvider
-
 bool willAnimate = AnimationManager.AnimationsEnabled;
 ```
 
@@ -459,7 +456,7 @@ Frame deltas are capped by `AnimationManager.MaxFrameDelta` (100 ms by default),
 | `BeginAnimationSequence` / `AnimationSequence<T>.Animate` / `EndAnimationSequence`, `AnimationStep<T>` | same; `AlsoCapture` is a weakly-held `IReadOnlyList<BindableObject>` (add with `AddAlsoCapture`) |
 | `Animation` (`StartDelay`, `Duration`, `CurrentTime`, `Easing`, `HasFinished`, `StartValue`, `EndValue`, `CurrentValue`, `Repeats`, `Id`, `IsPaused`, `IsDisposed`, `Tick`, `OnTick`, `Update`, `CreateAutoReversing`, `Reset`, `Pause`, `Resume`, `Dispose`) | same, plus init-only `Target`/`Property` (instead of Comet's settable `ContextualObject`/`PropertyName`), `Completed`, `IsCancelled` |
 | `Lerp` (`Lerps`, `GetLerp`, `Calculate`, `LerpDelegate`), `Color.Lerp(progress, end)` | same, plus `Lerp.Register`, `Lerp.Discrete` and MAUI types |
-| `AnimationManger` | `AnimationManager` (`SpeedModifier`, `SetTicker`, `Add`, `Remove`, `Ticker`, `MaxFrameDelta`, `TimeProvider`, `RespectReducedMotion`, `ReducedMotionProvider`, `AnimationsEnabled`, `FrameTicked`) |
+| `AnimationManger` | `AnimationManager` (`SpeedModifier`, `SetTicker`, `Add`, `Remove`, `Ticker`, `MaxFrameDelta`, `TimeProvider`, `RespectReducedMotion`, `AnimationsEnabled`, `FrameTicked`) |
 | `Ticker` (`MaxFps`, `Fire`, `IsRunning`, `SystemEnabled`, `Start`, `Stop`) | same: `iOSTicker` (`CADisplayLink`) and `AndroidTicker` (`ValueAnimator`) by default, `Ticker` timer elsewhere (frames dispatched to the UI thread and coalesced instead of firing on the timer thread), plus `ManualTicker` |
 | `View.AddAnimation/RemoveAnimation/Animations/PauseAnimations/ResumeAnimations` | extension members on `VisualElement` (`view.Animations` is a C# 14 extension property; `GetAnimations()` for older C#) |
 | `Easing` | `Microsoft.Maui.Easing` (same functions) |

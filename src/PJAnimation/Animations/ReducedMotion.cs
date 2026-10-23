@@ -2,14 +2,6 @@ using System;
 
 namespace PJAnimation;
 
-/// <summary>Reports whether the user asked the system to reduce motion.</summary>
-/// <remarks>Queried on the UI thread when an animation is added and once per frame.</remarks>
-public interface IReducedMotionProvider
-{
-	/// <summary><see langword="true"/> when animations should be skipped (jump to their end state).</summary>
-	bool IsReducedMotionEnabled { get; }
-}
-
 /// <summary>
 /// Reads the platform setting:
 /// <list type="bullet">
@@ -20,14 +12,16 @@ public interface IReducedMotionProvider
 /// <item>Other targets (<c>net10.0</c>): always <see langword="false"/>.</item>
 /// </list>
 /// </summary>
-public sealed class SystemReducedMotionProvider : IReducedMotionProvider
+public sealed class SystemReducedMotionProvider
 {
+	static readonly Lazy<SystemReducedMotionProvider> instance = new(static () => new SystemReducedMotionProvider());
+
 	SystemReducedMotionProvider()
 	{
 	}
 
 	/// <summary>The shared instance.</summary>
-	public static SystemReducedMotionProvider Instance { get; } = new();
+	public static SystemReducedMotionProvider Instance => instance.Value;
 
 	/// <inheritdoc/>
 	public bool IsReducedMotionEnabled

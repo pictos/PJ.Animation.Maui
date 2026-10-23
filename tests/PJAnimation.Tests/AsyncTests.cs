@@ -96,9 +96,9 @@ public class AsyncTests : TestBase
 	}
 
 	[Fact]
-	public async Task ReducedMotionCompletesImmediately()
+	public async Task SystemDisabledCompletesImmediately()
 	{
-		ReducedMotion.IsReducedMotionEnabled = true;
+		Ticker.IsSystemEnabled = false;
 		var label = new Label();
 		Assert.False(await label.AnimateAsync(l => l.TranslationX = 100, duration: 1, cancellationToken: Ct).WaitAsync(TimeSpan.FromSeconds(5), Ct));
 		Assert.Equal(100, label.TranslationX);

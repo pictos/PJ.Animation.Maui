@@ -63,21 +63,6 @@ sealed class TestDispatcherProvider : IDispatcherProvider
 	public IDispatcher? GetForCurrentThread() => TestDispatcher.Instance;
 }
 
-sealed class FakeReducedMotion : IReducedMotionProvider
-{
-	public bool IsReducedMotionEnabled { get; set; }
-	public int Queries { get; private set; }
-
-	bool IReducedMotionProvider.IsReducedMotionEnabled
-	{
-		get
-		{
-			Queries++;
-			return IsReducedMotionEnabled;
-		}
-	}
-}
-
 public abstract class TestBase : IDisposable
 {
 	static TestBase()
@@ -87,7 +72,6 @@ public abstract class TestBase : IDisposable
 
 	internal readonly FakeClock Clock = new();
 	internal readonly ManualTicker Ticker = new();
-	internal readonly FakeReducedMotion ReducedMotion = new();
 
 	protected TestBase()
 	{
@@ -99,7 +83,6 @@ public abstract class TestBase : IDisposable
 		AnimationManager.MaxFrameDelta = TimeSpan.FromMilliseconds(100);
 		AnimationManager.SetTicker(Ticker);
 		AnimationManager.RespectReducedMotion = true;
-		AnimationManager.ReducedMotionProvider = ReducedMotion;
 	}
 
 	/// <summary>Advances the clock by <paramref name="seconds"/> in frames of at most <paramref name="frame"/> seconds.</summary>
@@ -125,7 +108,7 @@ public abstract class TestBase : IDisposable
 	public virtual void Dispose()
 	{
 		AnimationManager.Clear();
-		AnimationManager.ReducedMotionProvider = SystemReducedMotionProvider.Instance;
+		AnimationManager.RespectReducedMotion = true;
 		TestDispatcher.Instance.RequireDispatch = false;
 		TestDispatcher.Instance.Queue.Clear();
 		GC.SuppressFinalize(this);

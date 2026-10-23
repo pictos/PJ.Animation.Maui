@@ -19,7 +19,6 @@ public static class AnimationManager
 	static readonly List<Animation> animations = new();
 	static readonly List<Animation> frame = new();
 	static Ticker ticker = null!;
-	static IReducedMotionProvider reducedMotionProvider = SystemReducedMotionProvider.Instance;
 	static long lastUpdate;
 
 	static AnimationManager()
@@ -50,29 +49,18 @@ public static class AnimationManager
 
 	/// <summary>
 	/// Whether the platform "reduce motion" accessibility setting (or Android's animator duration scale 0 / battery saver)
-	/// is honored. When <see langword="true"/> (default) and <see cref="ReducedMotionProvider"/> reports reduced motion,
+	/// is honored. When <see langword="true"/> (default) and the system reports reduced motion,
 	/// animations jump to their end state and invoke their completed callbacks, as when <see cref="Ticker.SystemEnabled"/>
 	/// is <see langword="false"/>. Set to <see langword="false"/> to always animate.
 	/// </summary>
 	public static bool RespectReducedMotion { get; set; } = true;
-
-	/// <summary>Source of the reduced-motion setting. Defaults to <see cref="SystemReducedMotionProvider.Instance"/>.</summary>
-	public static IReducedMotionProvider ReducedMotionProvider
-	{
-		get => reducedMotionProvider;
-		set
-		{
-			ArgumentNullException.ThrowIfNull(value);
-			reducedMotionProvider = value;
-		}
-	}
 
 	/// <summary>
 	/// Whether animations currently run: <see cref="Ticker.SystemEnabled"/> and not reduced motion
 	/// (unless <see cref="RespectReducedMotion"/> is <see langword="false"/>).
 	/// </summary>
 	public static bool AnimationsEnabled
-		=> ticker.SystemEnabled && !(RespectReducedMotion && reducedMotionProvider.IsReducedMotionEnabled);
+		=> ticker.SystemEnabled && !(RespectReducedMotion && SystemReducedMotionProvider.Instance.IsReducedMotionEnabled);
 
 	/// <summary>
 	/// Raised on the UI thread after every frame with the number of animations ticked and the time spent ticking them

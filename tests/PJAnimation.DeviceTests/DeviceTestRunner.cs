@@ -62,7 +62,6 @@ static class DeviceTestRunner
 			finally
 			{
 				page.Host.Children.Clear();
-				AnimationManager.ReducedMotionProvider = SystemReducedMotionProvider.Instance;
 				AnimationManager.RespectReducedMotion = true;
 			}
 			if (ok) passed++; else failed++;

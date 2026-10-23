@@ -2,28 +2,35 @@
 
   <PropertyGroup>
     <PJAnimationPlatformTargets Condition="'$(PJAnimationPlatformTargets)' == '' and Exists('$(NetCoreRoot)packs/Microsoft.Maui.Sdk')">true</PJAnimationPlatformTargets>
-    <TargetFrameworks>net10.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(PJAnimationPlatformTargets)' == 'true'">$(TargetFrameworks);net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="'$(PJAnimationPlatformTargets)' == 'true' and $([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(PJAnimationPlatformTargets)' == 'true'">$(TargetFrameworks)net10.0-android;net10.0-ios;net10.0-maccatalyst;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(PJAnimationPlatformTargets)' == 'true' and $([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks)net10.0-windows10.0.19041.0</TargetFrameworks>
     <UseMaui Condition="'$(PJAnimationPlatformTargets)' == 'true'">true</UseMaui>
     <MauiVersion>$(MauiPackageVersion)</MauiVersion>
     <SingleProject>false</SingleProject>
     <RootNamespace>PJAnimation</RootNamespace>
-
-    <PackageId>PJAnimation</PackageId>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Authors>Pedro Jesus</Authors>
+    <Company>PJSouzaSoftware</Company>
+    <PackageId>PJSouzaSoftware.Animations.Maui</PackageId>
     <Description>Comet-style implicit animations (view.Animate(v =&gt; v.Prop = value)) for .NET MAUI Controls.</Description>
     <PackageTags>maui;dotnet-maui;animation;animations;implicit-animation;comet;ui</PackageTags>
-    <Version>0.1.0-preview.1</Version>
+    <Version>0.1.0</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>See CHANGELOG.md.</PackageReleaseNotes>
-
+    <Product>Animations.Maui</Product>
+    <Copyright>Copyright(c) 2026 Pedro Jesus</Copyright>
+    <RepositoryUrl>https://github.com/pictos/PJ.Animation.Maui</RepositoryUrl>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <DebugType>portable</DebugType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>

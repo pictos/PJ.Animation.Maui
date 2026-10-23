@@ -148,10 +148,16 @@ static class Tests
 	public static async Task<string?> ReducedMotionJumpsToEndOnPlatformView(HarnessPage page)
 	{
 		var label = await AddLoaded(page, new Label { Text = "reduced motion" });
-		AnimationManager.ReducedMotionProvider = new AlwaysReduced();
+		var reducedMotionEnabled = SystemReducedMotionProvider.Instance.IsReducedMotionEnabled;
 		var completed = false;
 		label.Animate(l => l.Opacity = .25, () => completed = true, duration: 1);
-		Check(completed, "completed not invoked synchronously.");
+		if (reducedMotionEnabled)
+			Check(completed, "completed not invoked synchronously.");
+		else
+		{
+			Check(!completed, "animation completed before its duration elapsed.");
+			await WaitFor(() => completed, 3000, "animation did not complete.");
+		}
 		Check(Math.Abs(PlatformOpacity(label) - .25) < .001, $"platform alpha = {PlatformOpacity(label)}, expected 0.25.");
 		await Task.Yield();
 		return $"system reduced motion = {SystemReducedMotionProvider.Instance.IsReducedMotionEnabled}";
@@ -167,11 +173,6 @@ static class Tests
 		Check(await completed.Task.WaitAsync(TimeSpan.FromSeconds(3)), "completed ran off the UI thread.");
 		Check(actionOnMain, "action ran off the UI thread.");
 		return null;
-	}
-
-	sealed class AlwaysReduced : IReducedMotionProvider
-	{
-		public bool IsReducedMotionEnabled => true;
 	}
 
 	static async Task<T> AddLoaded<T>(HarnessPage page, T view) where T : View

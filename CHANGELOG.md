@@ -16,8 +16,8 @@ First preview: a port of Comet's implicit animation API (dotnet/Comet PR #146) t
   (cascading to visual descendants), `AnimatableProperties.Register`.
 - Lifecycle: `Unloaded` pauses and `Loaded` resumes a view's animations; explicit pauses are preserved.
 - Thread safety: animation APIs called off the UI thread are dispatched to the view's `Dispatcher`.
-- Reduced motion: `AnimationManager.RespectReducedMotion`, `ReducedMotionProvider`, `IReducedMotionProvider`,
-  `SystemReducedMotionProvider` (iOS/Mac Catalyst, Android, Windows), `AnimationsEnabled`.
+- Reduced motion: `AnimationManager.RespectReducedMotion`, `SystemReducedMotionProvider`
+  (iOS/Mac Catalyst, Android, Windows), `AnimationsEnabled`.
 - Diagnostics: `AnimationManager.FrameTicked` / `AnimationFrameInfo` (zero cost without subscribers).
 - Sample app (Comet AnimationSample port, stress page with HUD), on-device test harness, BenchmarkDotNet benchmarks.
 - NuGet package with README, symbols (`.snupkg`), Source Link, trimming / NativeAOT compatibility.
