@@ -18,7 +18,7 @@
     <PackageId>PJSouzaSoftware.Animations.Maui</PackageId>
     <Description>Comet-style implicit animations (view.Animate(v =&gt; v.Prop = value)) for .NET MAUI Controls.</Description>
     <PackageTags>maui;dotnet-maui;animation;animations;implicit-animation;comet;ui</PackageTags>
-    <Version>0.1.0</Version>
+    <Version>0.0.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Product>Animations.Maui</Product>
     <Copyright>Copyright(c) 2026 Pedro Jesus</Copyright>
