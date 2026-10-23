@@ -41,11 +41,12 @@ No custom handlers, no MAUI fork, no `Animation` objects to wire up: write the e
 Targets **.NET 10** MAUI apps (Android, iOS, Mac Catalyst, Windows).
 
 ```bash
-dotnet add package PJAnimation --prerelease
+dotnet add package PJSouzaSoftware.Animations.Maui --version 0.0.1
 ```
 
-> The package hasn't been published to nuget.org yet. Until then, reference `src/PJAnimation/PJAnimation.csproj`
-> directly or pack it locally (see [Building from source](#building-from-source)).
+> Version `0.0.1` hasn't been published to nuget.org yet. Until then, reference
+> `src/PJAnimation/PJAnimation.csproj` directly or pack it locally (see
+> [Building from source](#building-from-source)).
 
 There is nothing to register in `MauiProgram`. Add the namespace wherever you animate:
 

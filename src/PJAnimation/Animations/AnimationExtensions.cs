@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Graphics;
 
 namespace PJAnimation;
@@ -48,8 +49,9 @@ public static class AnimationExtensions
 	{
 		ArgumentNullException.ThrowIfNull(view);
 		ArgumentNullException.ThrowIfNull(action);
-		RunOnUIThread(view, () =>
+		RunOnUIThread(view, (view, easing, action, completed, duration, delay, repeats, autoReverses, alsoCapture), static work =>
 		{
+			var (view, easing, action, completed, duration, delay, repeats, autoReverses, alsoCapture) = work;
 			var animation = CreateAnimation(view, easing, action, completed, duration, delay, repeats, autoReverses, alsoCapture);
 			if (animation is null)
 			{
@@ -93,8 +95,9 @@ public static class AnimationExtensions
 			return Task.FromResult(true);
 
 		var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-		RunOnUIThread(view, () =>
+		RunOnUIThread(view, (view, easing, action, duration, delay, autoReverses, alsoCapture, cancellationToken, tcs), static work =>
 		{
+			var (view, easing, action, duration, delay, autoReverses, alsoCapture, cancellationToken, tcs) = work;
 			if (cancellationToken.IsCancellationRequested)
 			{
 				tcs.TrySetResult(true);
@@ -125,7 +128,7 @@ public static class AnimationExtensions
 				tcs.TrySetResult(a.IsCancelled || !a.HasFinished);
 			};
 			if (cancellationToken.CanBeCanceled)
-				registration = cancellationToken.Register(() => RunOnUIThread(view, animation.Dispose));
+				registration = cancellationToken.Register(() => RunOnUIThread(view, animation, static a => a.Dispose()));
 			view.AddAnimation(animation);
 		});
 		return tcs.Task;
@@ -236,8 +239,9 @@ public static class AnimationExtensions
 	{
 		ArgumentNullException.ThrowIfNull(view);
 		ArgumentNullException.ThrowIfNull(animation);
-		RunOnUIThread(view, () =>
+		RunOnUIThread(view, (view, animation), static work =>
 		{
+			var (view, animation) = work;
 			var state = viewAnimations.GetOrCreateValue(view);
 			Prune(view, state);
 			if (animation.HasFinished || animation.IsDisposed)
@@ -255,8 +259,9 @@ public static class AnimationExtensions
 	{
 		ArgumentNullException.ThrowIfNull(view);
 		ArgumentNullException.ThrowIfNull(animation);
-		RunOnUIThread(view, () =>
+		RunOnUIThread(view, (view, animation), static work =>
 		{
+			var (view, animation) = work;
 			if (viewAnimations.TryGetValue(view, out var state))
 			{
 				state.Animations.Remove(animation);
@@ -276,7 +281,7 @@ public static class AnimationExtensions
 	public static void PauseAnimations(this VisualElement view)
 	{
 		ArgumentNullException.ThrowIfNull(view);
-		RunOnUIThread(view, () => ForEachInTree(view, static v =>
+		RunOnUIThread(view, view, static root => ForEachInTree(root, static v =>
 		{
 			if (viewAnimations.TryGetValue(v, out var state))
 			{
@@ -290,7 +295,7 @@ public static class AnimationExtensions
 	public static void ResumeAnimations(this VisualElement view)
 	{
 		ArgumentNullException.ThrowIfNull(view);
-		RunOnUIThread(view, () => ForEachInTree(view, static v =>
+		RunOnUIThread(view, view, static root => ForEachInTree(root, static v =>
 		{
 			if (viewAnimations.TryGetValue(v, out var state))
 			{
@@ -367,12 +372,18 @@ public static class AnimationExtensions
 			DetachLifecycle(view, state);
 	}
 
-	static void RunOnUIThread(BindableObject target, Action action)
+	static void RunOnUIThread<TState>(BindableObject target, TState state, Action<TState> action)
 	{
 		var dispatcher = DispatcherHelper.FindDispatcher(target);
 		if (dispatcher is { IsDispatchRequired: true })
-			dispatcher.Dispatch(action);
+			Dispatch(dispatcher, state, action);
 		else
-			action();
+			action(state);
+
+		static void Dispatch(IDispatcher dispatcher, TState state, Action<TState> action)
+		{
+			if (!dispatcher.Dispatch(() => action(state)))
+				throw new InvalidOperationException("Unable to dispatch animation work to the UI thread.");
+		}
 	}
 }

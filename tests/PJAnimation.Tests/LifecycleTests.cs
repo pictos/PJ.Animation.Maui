@@ -266,6 +266,47 @@ public class ThreadingTests : TestBase
 	}
 
 	[Fact]
+	public void ResumeAndRemoveAreDeferredUntilDispatcherRuns()
+	{
+		var label = new Label();
+		label.Animate(static l => l.TranslationX = 100, duration: 1);
+		var animation = Assert.Single(label.Animations);
+		label.PauseAnimations();
+
+		TestDispatcher.Instance.RequireDispatch = true;
+		label.ResumeAnimations();
+		Assert.True(animation.IsPaused);
+		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.Pump();
+		Assert.False(animation.IsPaused);
+
+		TestDispatcher.Instance.RequireDispatch = true;
+		label.RemoveAnimation(animation);
+		Assert.Single(label.Animations);
+		Assert.Equal(1, AnimationManager.Count);
+		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.Pump();
+		Assert.Empty(label.Animations);
+		Assert.Equal(0, AnimationManager.Count);
+		Run(.5);
+		Assert.Equal(0, label.TranslationX);
+	}
+
+	[Fact]
+	public void RejectedDispatchThrowsWithoutRunningAction()
+	{
+		var label = new Label();
+		TestDispatcher.Instance.RequireDispatch = true;
+		TestDispatcher.Instance.RejectDispatch = true;
+
+		Assert.Throws<InvalidOperationException>(() =>
+			label.Animate(static l => l.Opacity = 0));
+
+		Assert.Equal(1, label.Opacity);
+		Assert.Empty(TestDispatcher.Instance.Queue);
+	}
+
+	[Fact]
 	public void ManagerAddFromBackgroundThreadIsDispatched()
 	{
 		var label = new Label();

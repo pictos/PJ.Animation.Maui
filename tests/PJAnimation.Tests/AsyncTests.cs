@@ -125,6 +125,44 @@ public class AsyncTests : TestBase
 	}
 
 	[Fact]
+	public async Task CancellationBeforeDispatchDoesNotRunTheAction()
+	{
+		var label = new Label();
+		using var cts = new CancellationTokenSource();
+		TestDispatcher.Instance.RequireDispatch = true;
+		var task = label.AnimateAsync(static l => l.TranslationX = 100, cancellationToken: cts.Token);
+
+		cts.Cancel();
+		Assert.False(task.IsCompleted);
+		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.Pump();
+
+		Assert.True(await task.WaitAsync(TimeSpan.FromSeconds(5), Ct));
+		Assert.Equal(0, label.TranslationX);
+		Assert.Empty(label.Animations);
+	}
+
+	[Fact]
+	public async Task CancellationIsDeferredUntilDispatcherRuns()
+	{
+		var label = new Label();
+		using var cts = new CancellationTokenSource();
+		var task = label.AnimateAsync(static l => l.TranslationX = 100, duration: 1, cancellationToken: cts.Token);
+		Run(.5);
+
+		TestDispatcher.Instance.RequireDispatch = true;
+		cts.Cancel();
+		Assert.False(task.IsCompleted);
+		Assert.Single(label.Animations);
+		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.Pump();
+
+		Assert.True(await task.WaitAsync(TimeSpan.FromSeconds(5), Ct));
+		Assert.Equal(50, label.TranslationX, 6);
+		Assert.Empty(label.Animations);
+	}
+
+	[Fact]
 	public async Task DispatchesFromBackgroundThread()
 	{
 		var label = new Label();

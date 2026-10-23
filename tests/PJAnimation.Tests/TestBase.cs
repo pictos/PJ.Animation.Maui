@@ -23,11 +23,14 @@ sealed class TestDispatcher : IDispatcher
 	public readonly ConcurrentQueue<Action> Queue = new();
 
 	public bool RequireDispatch { get; set; }
+	public bool RejectDispatch { get; set; }
 
 	public bool IsDispatchRequired => RequireDispatch;
 
 	public bool Dispatch(Action action)
 	{
+		if (RejectDispatch)
+			return false;
 		Queue.Enqueue(action);
 		return true;
 	}
@@ -76,6 +79,7 @@ public abstract class TestBase : IDisposable
 	protected TestBase()
 	{
 		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.RejectDispatch = false;
 		TestDispatcher.Instance.Queue.Clear();
 		AnimationManager.Clear();
 		AnimationManager.TimeProvider = Clock;
@@ -110,6 +114,7 @@ public abstract class TestBase : IDisposable
 		AnimationManager.Clear();
 		AnimationManager.RespectReducedMotion = true;
 		TestDispatcher.Instance.RequireDispatch = false;
+		TestDispatcher.Instance.RejectDispatch = false;
 		TestDispatcher.Instance.Queue.Clear();
 		GC.SuppressFinalize(this);
 	}
