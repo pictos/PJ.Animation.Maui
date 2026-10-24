@@ -280,23 +280,25 @@ public class Animation : IDisposable
 
 	/// <summary>Disposes the animation and its children and removes it from the <see cref="AnimationManager"/>.</summary>
 	protected virtual void Dispose(bool disposing)
-	{
-		if (!disposedValue)
-		{
-			if (disposing)
-			{
-				foreach (var child in childrenAnimations)
-					child.Dispose();
-				childrenAnimations.Clear();
-			}
-			ReleaseTrack();
-			target = null;
-			disposedValue = true;
-			AnimationManager.Remove(this);
-			DetachFromOwner();
-			RaiseEnded();
-		}
-	}
+    {
+        if (disposedValue)
+        {
+            return;
+        }
+        
+        if (disposing)
+        {
+            foreach (var child in childrenAnimations)
+                child.Dispose();
+            childrenAnimations.Clear();
+        }
+        ReleaseTrack();
+        target = null;
+        disposedValue = true;
+        AnimationManager.Remove(this);
+        DetachFromOwner();
+        RaiseEnded();
+    }
 
 	/// <inheritdoc/>
 	public void Dispose()

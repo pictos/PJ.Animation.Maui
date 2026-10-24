@@ -11,7 +11,7 @@ on:
 
 env:
     LIB_CSPROJ: src/PJAnimation/PJAnimation.csproj
-    PACKAGE_NAME: PJAnimation
+    PACKAGE_NAME: PJSouzaSoftware.Animations.Maui
 
 jobs:
   release-nuget:
